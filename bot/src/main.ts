@@ -2,10 +2,10 @@
 import 'module-alias/register';
 
 // COMMON CODE
-// TODO: ex DB( typeorm )
 
 // DISCORD SECTION
-import "./triggers/discord";
+import "./start/discord";
+import "./events/client_ready"
 
 // SLACK SECTION
 // TODO:
