@@ -9,10 +9,15 @@ export enum DiscordEventType {
 export class DiscordEventTrigger extends GenericTrigger {
     name: Events;
     type: DiscordEventType;
-    to_ctx: (...args: any[]) => Promise<GenericContext>;
-    from_ctx: (ctx: GenericContext) => Promise<void>;
+    to_ctx: ((...args: any[]) => Promise<GenericContext>) | undefined;
+    from_ctx: ((ctx: GenericContext) => Promise<void>) | undefined;
 
-    constructor(event: any, type: DiscordEventType, to_ctx: any, from_ctx: any) {
+    constructor(
+        event: any,
+        type: DiscordEventType,
+        to_ctx: ((...args: any[]) => Promise<GenericContext>) | undefined = undefined,
+        from_ctx: ((ctx: GenericContext) => Promise<void>) | undefined = undefined
+    ) {
         super();
 
         this.name = event;
@@ -22,7 +27,7 @@ export class DiscordEventTrigger extends GenericTrigger {
     }
 }
 
-export const discord_init_procedure = (uni_cord: UniCord) => {
+export const discord_init = (uni_cord: UniCord) => {
     uni_cord.events.forEach((event) => {
         const trigger = event.triggers.filter((t) => t instanceof DiscordEventTrigger)[0];
 
@@ -33,10 +38,17 @@ export const discord_init_procedure = (uni_cord: UniCord) => {
         const discord_trigger = trigger as DiscordEventTrigger;
 
         const execute = async (...args: any[]) => {
-            let ctx = await discord_trigger.to_ctx(...args);
+            let ctx= new GenericContext();
+            if( discord_trigger.to_ctx ){
+                ctx = await discord_trigger.to_ctx(...args);
+            }
 
             let pipeline = Object.assign({}, event.steps)
             await pipeline.push(async (ctx: any, _next: any) => {
+                if( !discord_trigger.from_ctx ){
+                    return;
+                }
+
                 discord_trigger.from_ctx(ctx)
             })
 

@@ -21,3 +21,4 @@ TODO:
 - [ ] Web dashboard
 - [ ] Add embed handling
 - [ ] Unify event interface
+- [ ] Mixins ?

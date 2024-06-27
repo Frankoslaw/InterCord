@@ -6,8 +6,8 @@ export class GenericContext {
 }
 
 export abstract class GenericTrigger {
-    abstract to_ctx: (...args: any[]) => Promise<GenericContext>;
-    abstract from_ctx: (ctx: GenericContext) => Promise<void>;
+    abstract to_ctx: ((...args: any[]) => Promise<GenericContext>) | undefined;
+    abstract from_ctx: ((ctx: GenericContext) => Promise<void>) | undefined;
 }
 
 export class GenericEvent {
@@ -21,20 +21,16 @@ export class GenericEvent {
 }
 
 export class UniCord {
-    events: GenericEvent [] = [];
+    public events: GenericEvent [] = [];
     init_procedures: ((...args: any[]) => void) [] = [];
     // For slack and discord.js clients
     [key: string]: any;
 
-    add_init_procedure(procedure: (...args: any[]) => void) {
+    init(procedure: (...args: any[]) => void) {
         this.init_procedures.push(procedure)
     }
 
-    add_event(event: GenericEvent) {
-        this.events.push(event)
-    }
-
-    init() {
+    run() {
         this.init_procedures.forEach((procedure) => {
             procedure(this);
         })

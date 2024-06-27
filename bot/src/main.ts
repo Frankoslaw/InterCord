@@ -1,19 +1,18 @@
-// TODO: Cleanup alias paths and start using them
 import 'module-alias/register';
+import { UniCord } from 'handlers/generic_handler';
+import { event as client_ready } from 'events/client_ready';
+import { event as interaction_create } from 'events/interaction_create';
+import { discord_client } from "./start/discord";
+import { discord_init } from 'handlers/event_discord';
 
 // COMMON CODE
-import { UniCord } from 'handlers/generic_handler';
-import { event } from 'events/client_ready';
 const bot = new UniCord();
 
-bot.add_event(event);
+bot.events = [client_ready, interaction_create];
 
 // DISCORD SECTION
-import { discord_client } from "./start/discord";
-import { discord_init_procedure } from 'handlers/event_discord';
-
 bot.discord_client = discord_client;
-bot.add_init_procedure(discord_init_procedure);
+bot.init(discord_init);
 
 // SLACK SECTION
 // TODO:
@@ -22,4 +21,4 @@ bot.add_init_procedure(discord_init_procedure);
 // TODO:
 
 // START BOT
-bot.init();
+bot.run();
