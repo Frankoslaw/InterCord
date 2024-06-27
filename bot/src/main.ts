@@ -1,40 +1,14 @@
-const packageJson = require('../package.json')
-import { consola } from "consola";
-import { config } from "./config";
-import { Client, GatewayIntentBits, Partials } from "discord.js";
-import { CommandHandler } from "./handlers/command_generic";
+// TODO: Cleanup alias paths and start using them
+import 'module-alias/register';
 
-type EventHandler = any;
+// COMMON CODE
+// TODO: ex DB( typeorm )
 
-class sTinesClient extends Client {
-  command_handler?: CommandHandler;
-  event_handler?: EventHandler;
-}
+// DISCORD SECTION
+import "./discord/main";
 
-const client: sTinesClient = new Client({
-  intents: [
-      GatewayIntentBits.Guilds,
-      GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.MessageContent,
-      GatewayIntentBits.GuildMembers,
-      GatewayIntentBits.GuildPresences,
-  ],
-  partials: [
-      Partials.Message,
-      Partials.Channel,
-      Partials.Reaction,
-  ],
-})
+// SLACK SECTION
+// TODO:
 
-consola.start(`Starting app '${packageJson.name}'`)
-consola.box(`Project: sTINES bot\nAuthor:  ${packageJson.author}\nVersion: ${packageJson.version}`)
-
-const commandHandler = new CommandHandler(client, {
-  autoload: true
-})
-
-client.command_handler = commandHandler;
-
-client.login(config.DISCORD_TOKEN);
-
-export { client };
+// EXPRESS SECTION
+// TODO:

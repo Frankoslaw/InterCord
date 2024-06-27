@@ -1,14 +1,16 @@
-const packageJson = require('../package.json')
+const packageJson = require('../../package.json')
 import { consola } from "consola";
-import { config } from "./config";
-import { Client, GatewayIntentBits, Partials } from "discord.js";
-import { CommandHandler } from "./handlers/command_generic";
+import { config } from "@config";
+import { Client, Collection, GatewayIntentBits, Partials } from "discord.js";
+import { CommandHandler } from "../handlers/command_generic";
+import { DiscordEvent, DiscordEventHandler } from "handlers/event_discord";
 
 type EventHandler = any;
 
-class sTinesClient extends Client {
+export class sTinesClient extends Client {
   command_handler?: CommandHandler;
   event_handler?: EventHandler;
+  events?: Collection<string, DiscordEvent>
 }
 
 const client: sTinesClient = new Client({
@@ -29,11 +31,18 @@ const client: sTinesClient = new Client({
 consola.start(`Starting app '${packageJson.name}'`)
 consola.box(`Project: sTINES bot\nAuthor:  ${packageJson.author}\nVersion: ${packageJson.version}`)
 
-const commandHandler = new CommandHandler(client, {
+// TODO: Path setup should be done here
+// TODO: This does not belong here as it is common part
+const command_handler = new CommandHandler({
   autoload: true
 })
 
-client.command_handler = commandHandler;
+// TODO: Add options to config events
+// TODO: Unify event definitions using same architecture as commands
+const event_handler = new DiscordEventHandler(client)
+
+client.command_handler = command_handler;
+client.event_handler = event_handler;
 
 client.login(config.DISCORD_TOKEN);
 

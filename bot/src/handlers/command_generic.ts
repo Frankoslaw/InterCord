@@ -1,5 +1,6 @@
 import { Client, Collection } from "discord.js";
 import { Pipeline } from "../utils/pipeline";
+import { logger } from "@utils/logger";
 
 // TODO: Allow for per command extension for better type checking
 export class UniversalContext {
@@ -25,13 +26,11 @@ export class CommandHandlerOptions{
 }
 
 export class CommandHandler {
-    client: Client | undefined;
     commands: Collection<string, UniversalCommand> = new Collection();
     commands_dir: string | undefined;
     options: CommandHandlerOptions = new CommandHandlerOptions();
 
-    constructor(client: Client, options: CommandHandlerOptions) {
-        this.client = client;
+    constructor(options: CommandHandlerOptions) {
         this.options = Object.assign(this.options, options)
 
         if(this.options.autoload) {
@@ -40,6 +39,6 @@ export class CommandHandler {
     }
 
     autoload_commands() {
-        console.log("TODO: No commands loaded")
+        logger.warn("TODO: No commands loaded")
     }
 }

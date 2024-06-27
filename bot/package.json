@@ -9,6 +9,10 @@
     "start": "node dist/main.js",
     "build": "tsup src/main.ts --minify"
   },
+  "_moduleAliases": {
+    "@config": "src/config",
+    "@utils": "src/utils"
+  },
   "keywords": [],
   "author": "Franciszek Łopuszański",
   "license": "AGPL-3.0-only",

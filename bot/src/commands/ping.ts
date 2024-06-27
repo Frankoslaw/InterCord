@@ -1,4 +1,4 @@
-import { CommandInteraction, SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 import { UniversalCommand, UniversalContext } from "../handlers/command_generic";
 import { Next, Pipeline } from "../utils/pipeline";
 import { DiscordHandler } from "../handlers/command_discord";

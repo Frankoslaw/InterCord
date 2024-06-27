@@ -19,3 +19,5 @@ TODO:
 - [ ] Sharding
 - [ ] Rust interop?
 - [ ] Web dashboard
+- [ ] Add embed handling
+- [ ] Unify event interface
