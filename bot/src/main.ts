@@ -5,7 +5,7 @@ import 'module-alias/register';
 // TODO: ex DB( typeorm )
 
 // DISCORD SECTION
-import "./discord/main";
+import "./triggers/discord";
 
 // SLACK SECTION
 // TODO:

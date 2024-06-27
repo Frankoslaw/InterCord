@@ -1,58 +1,47 @@
-import { logger } from "@utils/logger"
-import { Client, Collection, Events } from "discord.js";
-import path from "path";
-import * as fs from "fs";
-import { sTinesClient } from "discord/main";
+import { Client, Events } from "discord.js";
+import { Pipeline } from "@utils/pipeline";
 
-export enum DiscordTriggerType {
+// TODO: Allow for per command extension for better type checking
+export class GenericContext {
+    results: string[] = [];
+    [key: string]: any;
+}
+
+class DiscordProvider {
+    client: Client
+
+    constructor(client: Client) {
+        this.client = client;
+    }
+}
+
+enum DiscordTriggerType {
     On = "On",
     Once = "Once"
 }
 
-export class DiscordEvent {
-    name: Events;
-    type: DiscordTriggerType;
-    execute: ((...args: any[]) => Promise<void>);
-
-    constructor(name: Events, type: DiscordTriggerType, execute: ((client: Client) => Promise<void>)) {
-        this.name = name;
-        this.type = type;
-        this.execute = execute;
-    }
+abstract class GenericEventHandler {
+    abstract to_ctx: (...args: any[]) => Promise<GenericContext>;
+    abstract from_ctx: (ctx: GenericContext) => Promise<void>;
 }
 
-export class DiscordEventHandler {
-    client: sTinesClient;
+class DiscordEventHandler extends GenericEventHandler {
+    name: Events;
+    trigger_type: DiscordTriggerType;
+    to_ctx: (...args: any[]) => Promise<GenericContext>;
+    from_ctx: (ctx: GenericContext) => Promise<void>;
 
-    constructor(client: sTinesClient) {
-        this.client = client;
-        client.events = new Collection();
+    constructor(
+        name: Events,
+        trigger_type: DiscordTriggerType,
+        to_ctx: (...args: any[]) => Promise<GenericContext>,
+        from_ctx: (ctx: GenericContext) => Promise<void>
+    ) {
+        super()
 
-        this.load_events();
-    }
-
-    async load_events() {
-        const events_dir = path.join(__dirname +  "/../discord/events")
-
-        if(!fs.existsSync(events_dir)) {
-            logger.error('Events directory does not exist.')
-            return
-        }
-
-        const event_files = fs
-            .readdirSync(events_dir)
-            .filter((file) => file.endsWith(".js") || file.endsWith(".ts"))
-
-        for (const file of event_files) {
-            const file_path = path.join(events_dir, file)
-            const { event }: { event: DiscordEvent } = await import(file_path);
-            const event_name: string = event.name
-
-            this.client.events?.set(event_name, event);
-
-            if (event.type == DiscordTriggerType.Once) {
-                this.client.once(event_name, (...args) => event.execute(...args))
-            }
-        }
+        this.name = name;
+        this.trigger_type = trigger_type;
+        this.to_ctx = to_ctx;
+        this.from_ctx = from_ctx;
     }
 }
