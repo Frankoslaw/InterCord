@@ -1,12 +1,15 @@
+import { Client, Collection } from "discord.js";
 import { Pipeline } from "../utils/pipeline";
 
+// TODO: Allow for per command extension for better type checking
 export class UniversalContext {
+    results: string[] = [];
     [key: string]: any;
 }
 
 export abstract class GenericHandler {
-    abstract to_ctx(...args: any[]): UniversalContext;
-    abstract from_ctx(): void;
+    abstract to_ctx(...args: any[]): Promise<UniversalContext> | UniversalContext;
+    abstract from_ctx(ctx: UniversalContext, ...args: any[]): Promise<void> | void;
 }
 
 export class UniversalCommand {
@@ -14,4 +17,29 @@ export class UniversalCommand {
     description!: string;
     handlers!: [GenericHandler];
     steps: Pipeline<UniversalContext> = Pipeline<UniversalContext>()
+}
+
+export class CommandHandlerOptions{
+    autoload?: boolean = false;
+    autoload_dir?: string = "../commands";
+}
+
+export class CommandHandler {
+    client: Client | undefined;
+    commands: Collection<string, UniversalCommand> = new Collection();
+    commands_dir: string | undefined;
+    options: CommandHandlerOptions = new CommandHandlerOptions();
+
+    constructor(client: Client, options: CommandHandlerOptions) {
+        this.client = client;
+        this.options = Object.assign(this.options, options)
+
+        if(this.options.autoload) {
+            this.autoload_commands()
+        }
+    }
+
+    autoload_commands() {
+        console.log("TODO: No commands loaded")
+    }
 }
