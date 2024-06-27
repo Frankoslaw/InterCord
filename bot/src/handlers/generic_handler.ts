@@ -11,12 +11,28 @@ export abstract class GenericTrigger {
 }
 
 export class GenericEvent {
-    triggers: GenericTrigger [];
+    triggers: {
+        [key: string]: GenericTrigger
+    };
     steps: Pipeline<GenericContext>;
 
-    constructor(triggers: GenericTrigger [], steps: Pipeline<GenericContext>) {
+    constructor(triggers: { [key: string]: GenericTrigger }, steps: Pipeline<GenericContext>) {
         this.triggers = triggers;
         this.steps = steps;
+    }
+}
+
+export abstract class GenericHandler {
+    options: GenericHandlerOptions = new GenericHandlerOptions();
+}
+
+export class GenericHandlerOptions {
+    autoload?: boolean;
+    autoload_dir?: string;
+
+    constructor(autoload: boolean | undefined = undefined, autoload_dir: string | undefined = undefined) {
+        this.autoload = autoload;
+        this.autoload_dir = autoload_dir;
     }
 }
 

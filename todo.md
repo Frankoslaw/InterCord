@@ -22,3 +22,4 @@ TODO:
 - [ ] Add embed handling
 - [ ] Unify event interface
 - [ ] Mixins ?
+- [ ] Unify command and event handler because they share to much in common

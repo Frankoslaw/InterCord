@@ -6,8 +6,8 @@ import { DiscordEventTrigger, DiscordEventType } from "handlers/event_discord";
 
 
 export const event = new GenericEvent(
-    [
-        new DiscordEventTrigger (
+    {
+        discord_trigger: new DiscordEventTrigger (
             Events.InteractionCreate,
             DiscordEventType.On,
             async (interaction: Interaction) => {
@@ -17,7 +17,7 @@ export const event = new GenericEvent(
             },
             async (ctx: GenericContext) => {}
         ),
-    ],
+    },
     Pipeline<GenericContext>(
         (_ctx, next) => {
             logger.info("Someone interacted with the bot");
