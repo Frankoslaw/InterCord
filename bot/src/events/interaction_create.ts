@@ -23,10 +23,11 @@ export const event = new GenericEvent(
             logger.info("Someone interacted with the bot");
             next()
         },
-        (ctx, _next) => {
+        (ctx, next) => {
             const { commandName: command_name } = ctx.interaction;
 
             logger.info(`Command name: ${command_name}`)
+            next();
         }
     )
 )

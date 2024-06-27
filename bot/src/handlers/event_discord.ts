@@ -1,10 +1,6 @@
 import { Events } from "discord.js";
-import { GenericContext, GenericEvent, GenericHandler, GenericHandlerOptions, GenericTrigger, UniCord } from "./generic_handler";
-import { logger } from "@utils/logger";
-import * as fs from "fs";
-import path from "path";
-import { AlignmentEnum, AsciiTable3 } from "ascii-table3";
-import * as colors from "colors";
+import { GenericContext, GenericEvent, GenericHandlerOptions, GenericTrigger, UniCord } from "./generic_handler";
+import { DiscordHandler, DiscordHandlerType } from "./common_discord";
 
 
 export enum DiscordEventType {
@@ -33,29 +29,8 @@ export class DiscordEventTrigger extends GenericTrigger {
     }
 }
 
-export class DiscordEventHandler extends GenericHandler {
-    events_dir: string = "";
-
-    constructor(unicord: UniCord, options: GenericHandlerOptions) {
-        super();
-
-        this.options = Object.assign(
-            new GenericHandlerOptions(true, undefined),
-            options
-        );
-        unicord.events = [];
-
-        if (this.options.autoload) {
-            logger.info('Auto loading all events from:', this.options.autoload_dir);
-            this.events_dir = this.options.autoload_dir || "";
-
-            this.auto_load_events(unicord).then(() => {
-                this.display_loaded_events(unicord);
-            })
-        }
-    }
-
-    async load_event(unicord: UniCord, event: GenericEvent) {
+export class DiscordEventHandler extends DiscordHandler {
+    load_event: (unicord: UniCord, event: any) => void = (unicord: UniCord, event: GenericEvent) => {
         const trigger = event.triggers?.discord_trigger as DiscordEventTrigger;
 
         if(!trigger) {
@@ -87,42 +62,7 @@ export class DiscordEventHandler extends GenericHandler {
         }
     }
 
-    async auto_load_events(unicord: UniCord) {
-        if (!fs.existsSync(this.events_dir)) {
-            logger.error('Events directory does not exist.')
-            return
-        }
-
-        const event_files = fs
-            .readdirSync(this.events_dir)
-            .filter((file) => file.endsWith('.js') || file.endsWith('.ts'))
-
-        for (const file of event_files) {
-            const file_path = path.join(this.events_dir, file)
-            const { event }: { event: GenericEvent } = await import(file_path);
-            unicord.events.push(event);
-            this.load_event(unicord, event);
-        }
-    }
-
-    async display_loaded_events(unicord: UniCord) {
-        // create table
-        const table = new AsciiTable3('Events')
-            .setHeading('#', 'Name', 'Message')
-            .setAlign(3, AlignmentEnum.CENTER)
-
-        let i = 1
-        unicord.events.forEach((event) => {
-            const trigger = event.triggers?.discord_trigger as DiscordEventTrigger;
-
-            if(!trigger) {
-                return;
-            }
-
-            table.addRowMatrix([[i, trigger.name, colors.green('ok')]])
-            i++
-        })
-
-        console.log(table.toString())
+    constructor(unicord: UniCord, options: GenericHandlerOptions) {
+        super(unicord, options, DiscordHandlerType.Event);
     }
 }

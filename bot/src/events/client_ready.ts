@@ -13,8 +13,9 @@ export const event = new GenericEvent(
         ),
     },
     Pipeline<GenericContext>(
-        (_ctx, _next) => {
+        (_ctx, next) => {
             logger.info("Bot is online( discord ).");
+            next();
         }
     )
 )
