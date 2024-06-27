@@ -3,7 +3,7 @@ import { consola } from "consola";
 import { config } from "@config";
 import { Client, GatewayIntentBits, Partials } from "discord.js";
 
-const client: Client = new Client({
+const discord_client: Client = new Client({
   intents: [
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
@@ -21,6 +21,6 @@ const client: Client = new Client({
 consola.start(`Starting app '${packageJson.name}'`)
 consola.box(`Project: sTINES bot\nAuthor:  ${packageJson.author}\nVersion: ${packageJson.version}`)
 
-client.login(config.DISCORD_TOKEN);
+discord_client.login(config.DISCORD_TOKEN);
 
-export { client };
+export { discord_client };

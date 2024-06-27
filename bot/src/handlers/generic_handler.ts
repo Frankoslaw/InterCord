@@ -1,31 +1,42 @@
 import { Pipeline } from "../utils/pipeline";
 
-// TODO: Allow for per command extension for better type checking
 export class GenericContext {
-    results: string[] = [];
+    results: string [] = [];
     [key: string]: any;
 }
 
-export abstract class GenericHandler {
-    abstract to_ctx: ( (...args: any[]) => Promise<GenericContext>);
-    abstract from_ctx: ( (ctx: GenericContext, ...args: any[]) => Promise<void>);
-    abstract execute: (...args: any[]) => Promise<void>;
+export abstract class GenericTrigger {
+    abstract to_ctx: (...args: any[]) => Promise<GenericContext>;
+    abstract from_ctx: (ctx: GenericContext) => Promise<void>;
 }
 
-export abstract class GenericEvent {
-    handlers!: [GenericHandler];
-    steps: Pipeline<GenericContext> = Pipeline<GenericContext>();
-    abstract register: ((...args: any[]) => Promise<void>) | undefined;
+export class GenericEvent {
+    triggers: GenericTrigger [];
+    steps: Pipeline<GenericContext>;
+
+    constructor(triggers: GenericTrigger [], steps: Pipeline<GenericContext>) {
+        this.triggers = triggers;
+        this.steps = steps;
+    }
 }
 
-export class GenericCommand extends GenericEvent{
-    name!: string;
-    description!: string;
-    cooldown?: number; // Cooldown in ms
-    register: ((...args: any[]) => Promise<void>) | undefined
-}
+export class UniCord {
+    events: GenericEvent [] = [];
+    init_procedures: ((...args: any[]) => void) [] = [];
+    // For slack and discord.js clients
+    [key: string]: any;
 
-export class GenericHandlerOptions{
-    autoload?: boolean = false;
-    autoload_dir?: string;
+    add_init_procedure(procedure: (...args: any[]) => void) {
+        this.init_procedures.push(procedure)
+    }
+
+    add_event(event: GenericEvent) {
+        this.events.push(event)
+    }
+
+    init() {
+        this.init_procedures.forEach((procedure) => {
+            procedure(this);
+        })
+    }
 }
