@@ -30,7 +30,7 @@ export class DiscordEventTrigger extends GenericTrigger {
 }
 
 export class DiscordEventHandler extends DiscordHandler {
-    load_event: (unicord: UniCord, event: any) => void = (unicord: UniCord, event: GenericEvent) => {
+    register_event: (unicord: UniCord, event: any) => void = (unicord: UniCord, event: GenericEvent) => {
         const trigger = event.triggers?.discord_trigger as DiscordEventTrigger;
 
         if(!trigger) {

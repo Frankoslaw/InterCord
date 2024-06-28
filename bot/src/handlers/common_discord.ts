@@ -1,6 +1,6 @@
 import * as colors from "colors";
 import * as fs from "fs";
-import { GenericHandler, GenericHandlerOptions, UniCord } from "./generic_handler";
+import { GenericCommand, GenericHandler, GenericHandlerOptions, UniCord } from "./generic_handler";
 import { logger } from "@utils/logger";
 import { DiscordEventTrigger } from "./event_discord";
 import path from "path";
@@ -15,7 +15,8 @@ export class DiscordHandler extends GenericHandler {
     load_dir: string = "";
     type: DiscordHandlerType;
     options: GenericHandlerOptions;
-    load_event: ((unicord: UniCord, event: any) => void) | undefined = undefined;
+    // TODO: To platform dependent
+    register_event: ((unicord: UniCord, event: any) => void) | undefined = undefined;
 
     constructor(unicord: UniCord, options: GenericHandlerOptions, type: DiscordHandlerType) {
         super();
@@ -59,31 +60,38 @@ export class DiscordHandler extends GenericHandler {
                 const { event } = await import(file_path);
                 unicord.events.push(event);
 
-                if(!this.load_event) {
+                if(!this.register_event) {
                     continue;
                 }
 
-                this.load_event(unicord, event);
+                this.register_event(unicord, event);
+            }else if(this.type == DiscordHandlerType.Command){
+                const { command } = await import(file_path);
+                unicord.commands.push(command);
             }
         }
     }
 
     async display_loaded(unicord: UniCord) {
-        // TODO: Display also commands if implemented
-        // create table
-        const table = new AsciiTable3('Events')
-            .setHeading('#', 'Name', 'Message')
+        const table = new AsciiTable3(this.type + "s")
+            .setHeading('#', 'Name', 'Status')
             .setAlign(3, AlignmentEnum.CENTER)
 
         let i = 1
-        unicord.events.forEach((event) => {
-            const trigger = event.triggers?.discord_trigger as DiscordEventTrigger;
+        let loaded = (this.type == DiscordHandlerType.Event) ? unicord.events : unicord.commands;
 
-            if(!trigger) {
-                return;
+        loaded.forEach((e) => {
+            let name: string | undefined = undefined;
+
+            if(this.type == DiscordHandlerType.Event) {
+                const trigger = e.triggers?.discord_trigger as DiscordEventTrigger;
+                if(!trigger) return;
+
+                table.addRowMatrix([[i, trigger.name, colors.green('ok')]])
+            }else{
+                const command = e as GenericCommand;
+                table.addRowMatrix([[i, command.name, colors.green('ok')]])
             }
-
-            table.addRowMatrix([[i, trigger.name, colors.green('ok')]])
             i++
         })
 

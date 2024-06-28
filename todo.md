@@ -5,10 +5,10 @@ https://muniftanjim.dev/blog/basic-middleware-pattern-in-javascript/
 
 
 TODO:
-- [ ] Discord handlers
+- [x] Discord handlers
 - [ ] Slack handlers
 - [ ] REST handlers
-- [ ] Common command format
+- [x] Common command format
 - [ ] Generic commands from other bots
 - [ ] Stripe payment system
 - [ ] Human check:
@@ -20,6 +20,8 @@ TODO:
 - [ ] Rust interop?
 - [ ] Web dashboard
 - [ ] Add embed handling
-- [ ] Unify event interface
+- [x] Unify event interface
 - [ ] Mixins ?
-- [ ] Unify command and event handler because they share to much in common
+- [ ] Unify command and event handler because they share to much in common( partially done )
+- [ ] common_discord should be just part of generic handler as loading commands is similar regardless of platform like slack, discord, etc.
+- [ ] Todo replace list of commands and events with key-value pairs to cleanup code and improve efficency
