@@ -22,6 +22,17 @@ export class GenericEvent {
     }
 }
 
+export class GenericCommand extends GenericEvent {
+    name: string;
+    description: string;
+
+    constructor(name: string, description: string, triggers: { [key: string]: GenericTrigger }, steps: Pipeline<GenericContext>){
+        super(triggers, steps);
+        this.name = name;
+        this.description = description;
+    }
+}
+
 export abstract class GenericHandler {
     options: GenericHandlerOptions = new GenericHandlerOptions();
 }
@@ -38,6 +49,8 @@ export class GenericHandlerOptions {
 
 export class UniCord {
     public events: GenericEvent [] = [];
+    public commands: GenericCommand [] = [];
+
     init_procedures: ((...args: any[]) => void) [] = [];
     // For slack and discord.js clients
     [key: string]: any;

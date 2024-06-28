@@ -56,9 +56,9 @@ export class DiscordEventHandler extends DiscordHandler {
         }
 
         if(trigger.type == DiscordEventType.Once) {
-            unicord.discord_client.once(trigger.name, (...args: any[]) => execute(...args))
+            unicord.discord_client.once(trigger.name, (...args: any[]) => execute(unicord, ...args))
         }else{
-            unicord.discord_client.on(trigger.name, (...args: any[]) => execute(...args))
+            unicord.discord_client.on(trigger.name, (...args: any[]) => execute(unicord, ...args))
         }
     }
 
