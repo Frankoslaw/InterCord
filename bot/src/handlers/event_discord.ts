@@ -11,8 +11,16 @@ export enum DiscordEventType {
 export class DiscordEventTrigger extends GenericTrigger {
     name: Events;
     type: DiscordEventType;
-    to_ctx: ((...args: any[]) => Promise<GenericContext>) | undefined;
-    from_ctx: ((ctx: GenericContext) => Promise<void>) | undefined;
+    register(unicord: UniCord, event: GenericEvent): void {
+        if(this.type == DiscordEventType.Once) {
+            unicord.discord_client.once(this.name, (...args: any[]) => this.execute(unicord, event, ...args))
+        }else{
+            unicord.discord_client.on(this.name, (...args: any[]) => this.execute(unicord, event, ...args))
+        }
+    }
+    to_ctx: (...args: any[]) => Promise<GenericContext>;
+    from_ctx: (ctx: GenericContext) => Promise<void>;
+    get_name = () => { return this.name }
 
     constructor(
         event: any,
@@ -24,45 +32,7 @@ export class DiscordEventTrigger extends GenericTrigger {
 
         this.name = event;
         this.type = type;
-        this.to_ctx = to_ctx;
-        this.from_ctx = from_ctx;
-    }
-}
-
-export class DiscordEventHandler extends DiscordHandler {
-    register_event: (unicord: UniCord, event: any) => void = (unicord: UniCord, event: GenericEvent) => {
-        const trigger = event.triggers?.discord_trigger as DiscordEventTrigger;
-
-        if(!trigger) {
-            return;
-        }
-
-        const execute = async (...args: any[]) => {
-            let ctx= new GenericContext();
-            if( trigger.to_ctx ){
-                ctx = await trigger.to_ctx(...args);
-            }
-
-            let pipeline = Object.assign({}, event.steps)
-            await pipeline.push(async (ctx: any, _next: any) => {
-                if( !trigger.from_ctx ){
-                    return;
-                }
-
-                trigger.from_ctx(ctx)
-            })
-
-            event.steps.execute(ctx)
-        }
-
-        if(trigger.type == DiscordEventType.Once) {
-            unicord.discord_client.once(trigger.name, (...args: any[]) => execute(unicord, ...args))
-        }else{
-            unicord.discord_client.on(trigger.name, (...args: any[]) => execute(unicord, ...args))
-        }
-    }
-
-    constructor(unicord: UniCord, options: GenericHandlerOptions) {
-        super(unicord, options, DiscordHandlerType.Event);
+        this.to_ctx = to_ctx || (async () =>{ return new GenericContext() });
+        this.from_ctx = from_ctx || (async () => { return; });
     }
 }
