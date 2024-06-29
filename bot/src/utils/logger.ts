@@ -1,11 +1,13 @@
 import pino from "pino";
 
-const transports = [{
+const transports = [
+  {
     target: "pino-pretty",
     options: {
-        ignore: "pid,hostname",
-        // destination: './logs/logs.txt'
-    }
-}]
+      ignore: "pid,hostname",
+      // destination: './logs/logs.txt'
+    },
+  },
+];
 
-export const logger = pino(pino.transport({ targets: transports }))
+export const logger = pino(pino.transport({ targets: transports }));

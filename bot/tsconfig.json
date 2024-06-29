@@ -1,20 +1,23 @@
 {
-    "compilerOptions": {
-      "target": "ES2020",
-      "module": "commonjs",
-      "rootDir": "./src",
-      "outDir": "./dist",
-      "removeComments": true,
-      "resolveJsonModule": true,
-      "esModuleInterop": true,
-      "forceConsistentCasingInFileNames": true,
-      "strict": true,
-      "strictNullChecks": true,
-      "skipLibCheck": true,
-      "baseUrl": "./src",
-      "paths": {
-        "@config": ["config"],
-        "@utils/*": ["utils/*"]
-      }
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "noImplicitAny": true,
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@config": ["config"],
+      "@utils/*": ["utils/*"]
     }
-  }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
