@@ -1,6 +1,10 @@
+import * as colors from "colors";
+import * as fs from "fs";
 import { AlignmentEnum, AsciiTable3 } from "ascii-table3";
 import { Pipeline } from "../utils/pipeline";
-import * as colors from "colors";
+import { logger } from "@utils/logger";
+import path from "path";
+import { Collection } from "discord.js";
 
 export class GenericContext {
     results: string [] = [];
@@ -8,21 +12,23 @@ export class GenericContext {
 }
 
 export abstract class GenericTrigger {
-    abstract to_ctx: (...args: any[]) => Promise<GenericContext>;
+    abstract to_ctx: (unicord: UniCord, ...args: any[]) => Promise<GenericContext>;
     abstract from_ctx: (ctx: GenericContext) => Promise<void>;
     abstract get_name: () => string | undefined;
-    abstract register(unicord: UniCord, event: GenericEvent): void;
+    abstract register(unicord: UniCord, event: GenericEvent | GenericCommand): void;
     execute: (unicord: UniCord, event: GenericEvent, ...args: any[]) => Promise<void> = async (unicord: UniCord, event: GenericEvent, ...args: any[]) => {
-        let ctx = await this.to_ctx(unicord, event, ...args);
+        let ctx = await this.to_ctx(unicord, ...args);
         let pipeline = Object.assign({}, event.steps);
 
-        await pipeline.push(async (ctx: any, _next: any) => { this.from_ctx(ctx) })
+        await pipeline.push(async (ctx: any, _next: any) => {
+            this.from_ctx(ctx)
+        })
 
-        event.steps.execute(ctx)
+        await event.steps.execute(ctx)
     }
 }
 
-export abstract class GenericEvent {
+export class GenericEvent {
     triggers: {
         [key: string]: GenericTrigger
     };
@@ -46,7 +52,7 @@ export abstract class GenericEvent {
     }
 }
 
-export abstract class GenericCommand extends GenericEvent {
+export class GenericCommand extends GenericEvent {
     name: string;
     description: string;
 
@@ -57,35 +63,20 @@ export abstract class GenericCommand extends GenericEvent {
     }
 }
 
-export interface IGenericHandlerOptions {
-    autoload?: boolean;
-    autoload_dir?: string;
-}
-
-export class GenericHandlerOptions implements IGenericHandlerOptions {
-    autoload: boolean;
-    autoload_dir: string;
-
-    constructor({ autoload = true, autoload_dir = "./" }: IGenericHandlerOptions = {}) {
-        this.autoload = autoload;
-        this.autoload_dir = autoload_dir;
-    }
-}
-
 export class UniCord {
-    private events: GenericEvent[] = [];
-    private commands: GenericCommand[] = [];
+    public events: Collection<string, GenericEvent> = new Collection();
+    public commands: Collection<string, GenericCommand> = new Collection();
     private init_procedures: Array<(uniCord: UniCord) => void> = [];
 
     // For slack and discord.js clients
     [key: string]: any;
 
     public addEvent(event: GenericEvent): void {
-        this.events.push(event);
+        this.events.set(event.get_name() || "", event);
     }
 
     public addCommand(command: GenericCommand): void {
-        this.commands.push(command);
+        this.commands.set(command.get_name() || "", command);
     }
 
     public init(procedure: (uniCord: UniCord) => void): void {
@@ -97,24 +88,80 @@ export class UniCord {
     }
 
     public displayEvents() {
-        this.display(this.events);
+        this.display(this.events.values());
     }
 
     public displayCommands() {
-        this.display(this.commands);
+        this.display(this.commands.values());
     }
 
-    private display(items: GenericEvent[]): void {
-        const table = new AsciiTable3(this.type + "s")
+    private display(items: IterableIterator<GenericEvent>): void {
+        const table = new AsciiTable3("Loaded")
             .setHeading('#', 'Name', 'Status')
             .setAlign(3, AlignmentEnum.CENTER)
 
         let i = 1
-        items.forEach((e) => {
+        for(const e of items) {
             table.addRowMatrix([[i, e.get_name() || "", colors.green('ok')]])
             i++
-        })
+        }
 
         console.log(table.toString())
+    }
+}
+
+export class GenericHandlerOptions {
+    autoload: boolean;
+    autoload_dir: string;
+
+    constructor(autoload: boolean, autoload_dir: string) {
+        this.autoload = autoload;
+        this.autoload_dir = autoload_dir;
+    }
+}
+
+export class GenericHandler {
+    load_dir: string = "";
+    options: GenericHandlerOptions;
+
+    constructor(unicord: UniCord, options: GenericHandlerOptions, callback: () => void) {
+        this.options = Object.assign(
+            new GenericHandlerOptions(true, ""),
+            options
+        );
+
+        if(this.options.autoload) {
+            logger.info(`Loading all from ${this.options.autoload_dir}`);
+            this.load_dir = this.options.autoload_dir;
+
+            this.autoload(unicord).then(callback);
+        }
+    }
+
+    async autoload(unicord: UniCord) {
+        if (!fs.existsSync(this.load_dir)) {
+            logger.error(`${this.load_dir} does not exist.`)
+            return
+        }
+
+        const files = fs
+            .readdirSync(this.load_dir)
+            .filter((file) => file.endsWith('.js') || file.endsWith('.ts'))
+
+        for (const file of files) {
+            const file_path = path.join(this.load_dir, file);
+
+            const { event, command } = await import(file_path);
+
+            if(event) {
+                unicord.addEvent(event);
+            }    else if(command){
+                unicord.addCommand(command);
+            }
+
+            Object.values((event || command).triggers).forEach((trigger: any) => {
+                trigger.register(unicord, event || command);
+            })
+        }
     }
 }

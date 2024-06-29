@@ -1,26 +1,21 @@
 import 'module-alias/register';
-import { UniCord } from 'handlers/generic_handler';
-import { event as client_ready } from 'events/client_ready';
-import { event as interaction_create } from 'events/interaction_create';
-import { discord_client } from "./start/discord";
-import { DiscordEventHandler } from 'handlers/event_discord';
+import { GenericHandler, UniCord } from 'handlers/generic_handler';
 import path from 'path';
-import { DiscordCommandHandler } from 'handlers/command_discord';
 
 // COMMON CODE
 const bot = new UniCord();
 
-bot.events = [client_ready, interaction_create];
-
-// DISCORD SECTION
-const discord_event_handler = new DiscordEventHandler(bot, {
+const event_handler = new GenericHandler(bot, {
     autoload: true,
     autoload_dir: path.join(__dirname + "/events"),
-});
-const discord_command_handler = new DiscordCommandHandler(bot, {
+}, () => { bot.displayEvents() });
+const command_handler = new GenericHandler(bot, {
     autoload: true,
     autoload_dir: path.join(__dirname + "/commands")
-})
+}, () => { bot.displayCommands() })
+
+// DISCORD SECTION
+import { discord_client } from "./start/discord";
 bot.discord_client = discord_client;
 
 

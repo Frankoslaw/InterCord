@@ -22,61 +22,17 @@ export const event = new GenericEvent(
         ),
     },
     Pipeline<GenericContext>(
-        (_ctx, next) => {
-            logger.info("Someone interacted with the bot");
-            next()
-        },
         (ctx, next) => {
-            ctx.unicord.commands.forEach(async (command: GenericCommand) => {
-                if(command.name != ctx.interaction.commandName) {
-                    return;
-                }
+            const command = ctx.unicord.commands.get(ctx.interaction.commandName) as GenericCommand;
 
-                logger.info("Found command: " + command.name)
+            if(!command) return;
 
-                const trigger = event.triggers?.discord_trigger as DiscordEventTrigger;
+            const trigger = command.triggers?.discord_trigger as DiscordEventTrigger;
 
-                if(!trigger) {
-                    return;
-                }
+            if(!trigger) return;
 
-                // TODO: Fix this naming scheme
-                let ctx2 = new GenericContext();
-                if( trigger.to_ctx ){
-                    ctx2 = await trigger.to_ctx(ctx.unicord, ctx.interaction);
-                }
-
-                let pipeline = Object.assign({}, command.steps)
-                await pipeline.push(async (ctx3: any, _next: any) => {
-                    if( !trigger.from_ctx ){
-                        return;
-                    }
-
-                    trigger.from_ctx(ctx3)
-                })
-
-                command.steps.execute(ctx2)
-            })
-
+            trigger.execute(ctx.unicord, command, ctx.interaction);
             next();
         }
     )
 )
-
-// const execute = async (...args: any[]) => {
-//     let ctx= new GenericContext();
-//     if( trigger.to_ctx ){
-//         ctx = await trigger.to_ctx(...args);
-//     }
-
-//     let pipeline = Object.assign({}, command.steps)
-//     await pipeline.push(async (ctx: any, _next: any) => {
-//         if( !trigger.from_ctx ){
-//             return;
-//         }
-
-//         trigger.from_ctx(ctx)
-//     })
-
-//     command.steps.execute(ctx)
-// }
