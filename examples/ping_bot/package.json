@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@frankoslaw/intercord": "link:../..",
+    "@frankoslaw/intercord": "^1.2.0",
     "consola": "^3.2.3"
   },
   "devDependencies": {
