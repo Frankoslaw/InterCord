@@ -2,12 +2,12 @@
   "name": "bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/main.ts",
     "start": "node dist/main.js",
-    "build": "tsup src/main.ts --minify",
+    "build": "tsup",
     "lint": "eslint .",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
   },
@@ -30,7 +30,8 @@
     "path": "^0.12.7",
     "pino": "^9.2.0",
     "pino-http": "^10.1.0",
-    "pino-pretty": "^11.2.1"
+    "pino-pretty": "^11.2.1",
+    "tiny-glob": "^0.2.9"
   },
   "devDependencies": {
     "@eslint/js": "^9.6.0",

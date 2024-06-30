@@ -1,4 +1,3 @@
-import { Interaction, SlashCommandBuilder } from "discord.js";
 import {
   GenericCommand,
   GenericContext,
