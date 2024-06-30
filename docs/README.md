@@ -183,7 +183,7 @@ Object.values(default_interaction_create.triggers).forEach((trigger: any) => {
 });
 ```
 
-#### Example of generic handler usage
+#### Example of generic handler usage <!-- {docsify-ignore} -->
 
 ```ts
 const _event_handler = new GenericHandler(

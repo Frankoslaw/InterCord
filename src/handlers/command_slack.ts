@@ -8,16 +8,33 @@ import { logger } from "@utils/logger";
 
 export class SlackCommandTrigger extends GenericTrigger {
   name: string;
+  legacy_enabled: boolean = false;
   register(intercord: InterCord, event: GenericCommand): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    intercord.slack_client.message(this.name, async ({ command, say }: any) => {
-      try {
-        this.execute(intercord, event, command, say);
-      } catch (error) {
-        logger.error("err");
-        logger.error(error);
-      }
-    });
+    if (this.legacy_enabled) {
+      intercord.slack_client.message(
+        this.name,
+        async ({ command, say }: any) => {
+          try {
+            this.execute(intercord, event, command, say);
+          } catch (error) {
+            logger.error("err");
+            logger.error(error);
+          }
+        }
+      );
+    } else {
+      intercord.slack_client.command(
+        "/" + this.name,
+        async ({ command, ack, respond }: any) => {
+          try {
+            this.execute(intercord, event, command, ack, respond);
+          } catch (error) {
+            logger.error("err");
+            logger.error(error);
+          }
+        }
+      );
+    }
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   to_ctx: (intercord: InterCord, ...args: any[]) => Promise<GenericContext>;
@@ -28,6 +45,7 @@ export class SlackCommandTrigger extends GenericTrigger {
 
   constructor(
     name: string,
+    legacy_enabled: boolean,
     to_ctx: // eslint-disable-next-line @typescript-eslint/no-explicit-any
     | ((intercord: InterCord, ...args: any[]) => Promise<GenericContext>)
       | undefined = undefined,
@@ -36,12 +54,21 @@ export class SlackCommandTrigger extends GenericTrigger {
     super();
 
     this.name = name;
-    this.to_ctx = to_ctx || default_to_ctx;
-    this.from_ctx = from_ctx || default_from_ctx;
+    this.legacy_enabled = legacy_enabled;
+    this.to_ctx =
+      to_ctx ||
+      (this.legacy_enabled ? default_legacy_to_ctx : default_slash_to_ctx);
+    this.from_ctx =
+      from_ctx ||
+      (this.legacy_enabled ? default_legacy_from_ctx : default_slash_from_ctx);
   }
 }
 
-const default_to_ctx = async (intercord: InterCord, command: any, say: any) => {
+const default_legacy_to_ctx = async (
+  intercord: InterCord,
+  command: any,
+  say: any
+) => {
   const ctx = new GenericContext();
 
   ctx.intercord = intercord;
@@ -51,7 +78,23 @@ const default_to_ctx = async (intercord: InterCord, command: any, say: any) => {
   return ctx;
 };
 
-const default_from_ctx = async (ctx: GenericContext) => {
+const default_slash_to_ctx = async (
+  intercord: InterCord,
+  command: any,
+  ack: any,
+  respond: any
+) => {
+  const ctx = new GenericContext();
+
+  ctx.intercord = intercord;
+  ctx.command = command;
+  ctx.ack = ack;
+  ctx.respond = respond;
+
+  return ctx;
+};
+
+const default_legacy_from_ctx = async (ctx: GenericContext) => {
   let full_response = "";
   ctx.results.forEach(async (result: string) => {
     full_response += result + "\n";
@@ -59,5 +102,18 @@ const default_from_ctx = async (ctx: GenericContext) => {
 
   if (full_response != "") {
     await ctx.say(full_response);
+  }
+};
+
+const default_slash_from_ctx = async (ctx: GenericContext) => {
+  await ctx.ack();
+
+  let full_response = "";
+  ctx.results.forEach(async (result: string) => {
+    full_response += result + "\n";
+  });
+
+  if (full_response != "") {
+    await ctx.respond(full_response);
   }
 };

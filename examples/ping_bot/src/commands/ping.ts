@@ -22,7 +22,7 @@ export const command = new GenericCommand(
       ExpressMethodType.GET,
       "/commands/ping"
     ),
-    slack_trigger: new SlackCommandTrigger("ping"),
+    slack_trigger: new SlackCommandTrigger("ping", false),
   },
   Pipeline<GenericContext>((ctx, next) => {
     ctx.results.push("Pong!");
