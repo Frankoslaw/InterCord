@@ -1,5 +1,8 @@
 {
   "semi": false,
   "singleQuote": true,
-  "arrowParens": "avoid"
+  "arrowParens": "avoid",
+  "editor.formatOnSave": true,
+  "tabWidth": 4,
+  "useTabs": false
 }
