@@ -22,7 +22,7 @@ export abstract class GenericTrigger {
   abstract get_name: () => string | undefined;
   abstract register(
     unicord: UniCord,
-    event: GenericEvent | GenericCommand,
+    event: GenericEvent | GenericCommand
   ): void;
   execute: (
     unicord: UniCord,
@@ -66,7 +66,7 @@ export class GenericEvent {
 
   constructor(
     triggers: { [key: string]: GenericTrigger },
-    steps: Pipeline<GenericContext>,
+    steps: Pipeline<GenericContext>
   ) {
     this.triggers = triggers;
     this.steps = steps;
@@ -81,7 +81,7 @@ export class GenericCommand extends GenericEvent {
     name: string,
     description: string,
     triggers: { [key: string]: GenericTrigger },
-    steps: Pipeline<GenericContext>,
+    steps: Pipeline<GenericContext>
   ) {
     super(triggers, steps);
     this.name = name;
@@ -154,7 +154,7 @@ export class GenericHandler {
   constructor(
     unicord: UniCord,
     options: GenericHandlerOptions,
-    callback: () => void,
+    callback: () => void
   ) {
     this.options = Object.assign(new GenericHandlerOptions(true, ""), options);
 

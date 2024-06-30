@@ -1,12 +1,11 @@
+import { logger } from "@utils/logger";
 import express, { Request, Response } from "express";
 
-const app = express();
+const express_client = express();
 const port = 3000;
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server");
+express_client.listen(port, () => {
+  logger.info(`Bot is online( Express + PORT: ${port} ).`);
 });
 
-app.listen(port, () => {
-  console.log(`Bot is online( Express + PORT: ${port} ).`);
-});
+export { express_client };

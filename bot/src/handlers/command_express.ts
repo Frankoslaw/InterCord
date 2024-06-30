@@ -1,4 +1,4 @@
-import { Interaction, SlashCommandBuilder } from "discord.js";
+import { Request, Response } from "express";
 import {
   GenericCommand,
   GenericContext,
@@ -6,20 +6,35 @@ import {
   UniCord,
 } from "./generic_handler";
 
-export class DiscordCommandTrigger extends GenericTrigger {
-  slash: SlashCommandBuilder;
-  register(_unicord: UniCord, _event: GenericCommand): void {
-    return;
+export enum ExpressMethodType {
+  POST = "POST",
+  GET = "GET",
+}
+
+export class ExpressCommandTrigger extends GenericTrigger {
+  method: ExpressMethodType;
+  route: string = "/commands/test";
+  register(unicord: UniCord, event: GenericCommand): void {
+    if (this.method == ExpressMethodType.POST) {
+      unicord.express_client.post(this.route, (req: Request, res: Response) =>
+        this.execute(unicord, event, req, res)
+      );
+    } else {
+      unicord.express_client.get(this.route, (req: Request, res: Response) =>
+        this.execute(unicord, event, req, res)
+      );
+    }
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   to_ctx: (unicord: UniCord, ...args: any[]) => Promise<GenericContext>;
   from_ctx: (ctx: GenericContext) => Promise<void>;
   get_name = () => {
-    return this.slash.name;
+    return undefined;
   };
 
   constructor(
-    slash: SlashCommandBuilder,
+    method: ExpressMethodType,
+    route: string,
     to_ctx: // eslint-disable-next-line @typescript-eslint/no-explicit-any
     | ((unicord: UniCord, ...args: any[]) => Promise<GenericContext>)
       | undefined = undefined,
@@ -27,17 +42,23 @@ export class DiscordCommandTrigger extends GenericTrigger {
   ) {
     super();
 
-    this.slash = slash;
+    this.method = method;
+    this.route = route;
     this.to_ctx = to_ctx || default_to_ctx;
     this.from_ctx = from_ctx || default_from_ctx;
   }
 }
 
-const default_to_ctx = async (unicord: UniCord, interaction: Interaction) => {
+const default_to_ctx = async (
+  unicord: UniCord,
+  req: Request,
+  res: Response
+) => {
   const ctx = new GenericContext();
 
   ctx.unicord = unicord;
-  ctx.interaction = interaction;
+  ctx.req = req;
+  ctx.res = res;
 
   return ctx;
 };
@@ -49,6 +70,6 @@ const default_from_ctx = async (ctx: GenericContext) => {
   });
 
   if (full_response != "") {
-    await ctx.interaction.reply(full_response);
+    ctx.res.send(full_response);
   }
 };

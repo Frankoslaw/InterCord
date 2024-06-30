@@ -9,7 +9,7 @@ const bot = new UniCord();
 
 consola.start(`Starting app '${packageJson.name}'`);
 consola.box(
-  `Project: sTINES bot\nAuthor:  ${packageJson.author}\nVersion: ${packageJson.version}`,
+  `Project: sTINES bot\nAuthor:  ${packageJson.author}\nVersion: ${packageJson.version}`
 );
 
 const _event_handler = new GenericHandler(
@@ -20,7 +20,7 @@ const _event_handler = new GenericHandler(
   },
   () => {
     bot.displayEvents();
-  },
+  }
 );
 const _command_handler = new GenericHandler(
   bot,
@@ -30,7 +30,7 @@ const _command_handler = new GenericHandler(
   },
   () => {
     bot.displayCommands();
-  },
+  }
 );
 
 // DISCORD SECTION
@@ -42,7 +42,8 @@ import { slack_client } from "./start/slack";
 bot.slack_client = slack_client;
 
 // EXPRESS SECTION
-// TODO:
+import { express_client } from "start/express";
+bot.express_client = express_client;
 
 // START BOT
 bot.run();
