@@ -7,10 +7,10 @@ export default defineConfig(async () => {
       entry: [
         ...(await glob("./src/commands/**/*.ts")),
         ...(await glob("./src/events/**/*.ts")),
-        "./src/main.ts",
+        "src/main.ts",
       ],
-      splitting: false,
-      sourcemap: false,
+      dts: true,
+      sourcemap: true,
       clean: true,
       minify: true,
     },
