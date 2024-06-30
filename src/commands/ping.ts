@@ -23,6 +23,7 @@ export const command = new GenericCommand(
   },
   Pipeline<GenericContext>((ctx, next) => {
     ctx.results.push("Pong!");
+    ctx.results.push("Pong 2!");
 
     next();
   })

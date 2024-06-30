@@ -64,12 +64,7 @@ const default_to_ctx = async (
 };
 
 const default_from_ctx = async (ctx: GenericContext) => {
-  let full_response = "";
-  ctx.results.forEach(async (result: string) => {
-    full_response += result + "\n";
+  ctx.res.json({
+    results: ctx.results,
   });
-
-  if (full_response != "") {
-    ctx.res.send(full_response);
-  }
 };
