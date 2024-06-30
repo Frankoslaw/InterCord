@@ -6,6 +6,7 @@ import {
   ExpressCommandTrigger,
   ExpressMethodType,
 } from "handlers/command_express";
+import { SlackCommandTrigger } from "handlers/command_slack";
 
 export const command = new GenericCommand(
   "ping",
@@ -20,6 +21,7 @@ export const command = new GenericCommand(
       ExpressMethodType.GET,
       "/commands/ping"
     ),
+    slack_trigger: new SlackCommandTrigger("ping"),
   },
   Pipeline<GenericContext>((ctx, next) => {
     ctx.results.push("Pong!");

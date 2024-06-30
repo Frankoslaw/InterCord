@@ -8,6 +8,8 @@ const {
   SLACK_APP_TOKEN,
   SLACK_BOT_TOKEN,
   SLACK_SIGNING_SECRET,
+  SLACK_PORT,
+  EXPRESS_PORT,
 } = process.env;
 
 if (
@@ -26,4 +28,6 @@ export const config = {
   SLACK_APP_TOKEN,
   SLACK_BOT_TOKEN,
   SLACK_SIGNING_SECRET,
+  SLACK_PORT,
+  EXPRESS_PORT,
 };

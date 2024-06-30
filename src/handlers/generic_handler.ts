@@ -36,13 +36,15 @@ export abstract class GenericTrigger {
     ...args: any[]
   ) => {
     const ctx = await this.to_ctx(unicord, ...args);
-    const pipeline = Object.assign({}, event.steps);
 
-    await pipeline.push(async (ctx: GenericContext, _next: Next) => {
+    // clonte event.steps as cloned_pipeline.
+    const cloned_pipeline = event.steps.clone();
+
+    await cloned_pipeline.push(async (ctx: GenericContext, _next: Next) => {
       this.from_ctx(ctx);
     });
 
-    await event.steps.execute(ctx);
+    await cloned_pipeline.execute(ctx);
   };
 }
 

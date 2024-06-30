@@ -21,12 +21,12 @@ export const event = new GenericEvent(
 
         return ctx;
       },
-      async (_ctx: GenericContext) => {},
+      async (_ctx: GenericContext) => {}
     ),
   },
   Pipeline<GenericContext>((ctx, next) => {
     const command = ctx.unicord.commands.get(
-      ctx.interaction.commandName,
+      ctx.interaction.commandName
     ) as GenericCommand;
 
     if (!command) return;
@@ -37,5 +37,5 @@ export const event = new GenericEvent(
 
     trigger.execute(ctx.unicord, command, ctx.interaction);
     next();
-  }),
+  })
 );

@@ -16,6 +16,10 @@ https://muniftanjim.dev/blog/basic-middleware-pattern-in-javascript/
 - [x] Todo replace list of commands and events with key-value pairs to cleanup code and improve efficency
 - [ ] Auto generate slack bot yaml for simple commands
 - [ ] Fix formating 4 spaces
+- [ ] Write readme
+- [ ] Document using Docsify
+- [ ] Main page using github pages
+- [ ] Normal slack commands( not legacy )
 
 ### sTINEs BOT TODO:
 

@@ -7,11 +7,12 @@ const slack_client = new App({
   signingSecret: config.SLACK_SIGNING_SECRET,
   token: config.SLACK_BOT_TOKEN,
   socketMode: true,
-  port: (process.env.PORT || 3000) as number,
+  port: (config.SLACK_PORT || 3000) as number,
 });
 
 (async () => {
-  await slack_client.start();
+  const port = 3000;
+  await slack_client.start(config.SLACK_PORT || port);
   logger.info("Bot is online( slack ).");
 })();
 

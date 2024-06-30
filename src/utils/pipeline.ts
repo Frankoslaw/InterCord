@@ -5,6 +5,7 @@ export type Middleware<T> = (context: T, next: Next) => Promise<void> | void;
 export type Pipeline<T> = {
   push: (...middlewares: Middleware<T>[]) => void;
   execute: (context: T) => Promise<void>;
+  clone: () => Pipeline<T>;
 };
 
 export function Pipeline<T>(...middlewares: Middleware<T>[]): Pipeline<T> {
@@ -36,5 +37,9 @@ export function Pipeline<T>(...middlewares: Middleware<T>[]): Pipeline<T> {
     await runner(0);
   };
 
-  return { push, execute };
+  const clone: Pipeline<T>["clone"] = () => {
+    return Pipeline(...stack);
+  };
+
+  return { push, execute, clone };
 }
