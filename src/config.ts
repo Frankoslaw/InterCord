@@ -10,6 +10,7 @@ const {
   SLACK_SIGNING_SECRET,
   SLACK_PORT,
   EXPRESS_PORT,
+  TESTING_GUILD_ID,
 } = process.env;
 
 if (
@@ -30,4 +31,5 @@ export const config = {
   SLACK_SIGNING_SECRET,
   SLACK_PORT,
   EXPRESS_PORT,
+  TESTING_GUILD_ID,
 };

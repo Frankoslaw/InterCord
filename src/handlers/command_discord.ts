@@ -1,15 +1,39 @@
-import { Interaction, SlashCommandBuilder } from "discord.js";
+import { Interaction, SlashCommandBuilder, REST, Routes } from "discord.js";
 import {
   GenericCommand,
   GenericContext,
   GenericTrigger,
   InterCord,
 } from "./generic_handler";
+import { config } from "@config";
+import { logger } from "main";
 
 export class DiscordCommandTrigger extends GenericTrigger {
   slash: SlashCommandBuilder;
   register(_intercord: InterCord, _event: GenericCommand): void {
-    return;
+    const rest = new REST().setToken(config.DISCORD_TOKEN);
+
+    (async () => {
+      try {
+        if (!config.TESTING_GUILD_ID) {
+          return;
+        }
+
+        await rest.put(Routes.applicationCommands(config.DISCORD_CLIENT_ID), {
+          body: [this.slash.toJSON()],
+        });
+
+        await rest.put(
+          Routes.applicationGuildCommands(
+            config.DISCORD_CLIENT_ID,
+            config.TESTING_GUILD_ID
+          ),
+          { body: [this.slash.toJSON()] }
+        );
+      } catch (error) {
+        logger.error(error);
+      }
+    })();
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   to_ctx: (intercord: InterCord, ...args: any[]) => Promise<GenericContext>;
