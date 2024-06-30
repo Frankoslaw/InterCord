@@ -4,7 +4,7 @@ import {
   GenericCommand,
   GenericContext,
   GenericEvent,
-  UniCord,
+  InterCord,
 } from "handlers/generic_handler";
 import { DiscordEventTrigger, DiscordEventType } from "handlers/event_discord";
 
@@ -13,10 +13,10 @@ export const event = new GenericEvent(
     discord_trigger: new DiscordEventTrigger(
       Events.InteractionCreate,
       DiscordEventType.On,
-      async (unicord: UniCord, interaction: Interaction) => {
+      async (intercord: InterCord, interaction: Interaction) => {
         const ctx = new GenericContext();
 
-        ctx.unicord = unicord;
+        ctx.intercord = intercord;
         ctx.interaction = interaction;
 
         return ctx;
@@ -25,7 +25,7 @@ export const event = new GenericEvent(
     ),
   },
   Pipeline<GenericContext>((ctx, next) => {
-    const command = ctx.unicord.commands.get(
+    const command = ctx.intercord.commands.get(
       ctx.interaction.commandName
     ) as GenericCommand;
 
@@ -35,7 +35,7 @@ export const event = new GenericEvent(
 
     if (!trigger) return;
 
-    trigger.execute(ctx.unicord, command, ctx.interaction);
+    trigger.execute(ctx.intercord, command, ctx.interaction);
     next();
   })
 );

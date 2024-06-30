@@ -3,16 +3,16 @@ import {
   GenericCommand,
   GenericContext,
   GenericTrigger,
-  UniCord,
+  InterCord,
 } from "./generic_handler";
 
 export class DiscordCommandTrigger extends GenericTrigger {
   slash: SlashCommandBuilder;
-  register(_unicord: UniCord, _event: GenericCommand): void {
+  register(_intercord: InterCord, _event: GenericCommand): void {
     return;
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  to_ctx: (unicord: UniCord, ...args: any[]) => Promise<GenericContext>;
+  to_ctx: (intercord: InterCord, ...args: any[]) => Promise<GenericContext>;
   from_ctx: (ctx: GenericContext) => Promise<void>;
   get_name = () => {
     return this.slash.name;
@@ -21,7 +21,7 @@ export class DiscordCommandTrigger extends GenericTrigger {
   constructor(
     slash: SlashCommandBuilder,
     to_ctx: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    | ((unicord: UniCord, ...args: any[]) => Promise<GenericContext>)
+    | ((intercord: InterCord, ...args: any[]) => Promise<GenericContext>)
       | undefined = undefined,
     from_ctx: ((ctx: GenericContext) => Promise<void>) | undefined = undefined
   ) {
@@ -33,10 +33,13 @@ export class DiscordCommandTrigger extends GenericTrigger {
   }
 }
 
-const default_to_ctx = async (unicord: UniCord, interaction: Interaction) => {
+const default_to_ctx = async (
+  intercord: InterCord,
+  interaction: Interaction
+) => {
   const ctx = new GenericContext();
 
-  ctx.unicord = unicord;
+  ctx.intercord = intercord;
   ctx.interaction = interaction;
 
   return ctx;

@@ -2,17 +2,17 @@ import {
   GenericCommand,
   GenericContext,
   GenericTrigger,
-  UniCord,
+  InterCord,
 } from "./generic_handler";
 import { logger } from "@utils/logger";
 
 export class SlackCommandTrigger extends GenericTrigger {
   name: string;
-  register(unicord: UniCord, event: GenericCommand): void {
+  register(intercord: InterCord, event: GenericCommand): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    unicord.slack_client.message(this.name, async ({ command, say }: any) => {
+    intercord.slack_client.message(this.name, async ({ command, say }: any) => {
       try {
-        this.execute(unicord, event, command, say);
+        this.execute(intercord, event, command, say);
       } catch (error) {
         logger.error("err");
         logger.error(error);
@@ -20,7 +20,7 @@ export class SlackCommandTrigger extends GenericTrigger {
     });
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  to_ctx: (unicord: UniCord, ...args: any[]) => Promise<GenericContext>;
+  to_ctx: (intercord: InterCord, ...args: any[]) => Promise<GenericContext>;
   from_ctx: (ctx: GenericContext) => Promise<void>;
   get_name = () => {
     return this.name;
@@ -29,7 +29,7 @@ export class SlackCommandTrigger extends GenericTrigger {
   constructor(
     name: string,
     to_ctx: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    | ((unicord: UniCord, ...args: any[]) => Promise<GenericContext>)
+    | ((intercord: InterCord, ...args: any[]) => Promise<GenericContext>)
       | undefined = undefined,
     from_ctx: ((ctx: GenericContext) => Promise<void>) | undefined = undefined
   ) {
@@ -41,10 +41,10 @@ export class SlackCommandTrigger extends GenericTrigger {
   }
 }
 
-const default_to_ctx = async (unicord: UniCord, command: any, say: any) => {
+const default_to_ctx = async (intercord: InterCord, command: any, say: any) => {
   const ctx = new GenericContext();
 
-  ctx.unicord = unicord;
+  ctx.intercord = intercord;
   ctx.command = command;
   ctx.say = say;
 

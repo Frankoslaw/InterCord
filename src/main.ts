@@ -1,49 +1,18 @@
 import "module-alias/register";
-import packageJson from "../package.json";
-import { consola } from "consola";
-import { GenericHandler, UniCord } from "handlers/generic_handler";
-import path from "path";
 
-// COMMON CODE
-const bot = new UniCord();
+// UTILS
+export { event as default_interaction_create } from "events/interaction_create";
+export * from "utils/pipeline";
+export * from "utils/logger";
 
-consola.start(`Starting app '${packageJson.name}'`);
-consola.box(
-  `Project: sTINES bot\nAuthor:  ${packageJson.author}\nVersion: ${packageJson.version}`
-);
+// HANDLER
+export * from "handlers/generic_handler";
+export * from "handlers/event_discord";
+export * from "handlers/command_discord";
+export * from "handlers/command_slack";
+export * from "handlers/command_express";
 
-const _event_handler = new GenericHandler(
-  bot,
-  {
-    autoload: true,
-    autoload_dir: path.join(__dirname + "/events"),
-  },
-  () => {
-    bot.displayEvents();
-  }
-);
-const _command_handler = new GenericHandler(
-  bot,
-  {
-    autoload: true,
-    autoload_dir: path.join(__dirname + "/commands"),
-  },
-  () => {
-    bot.displayCommands();
-  }
-);
-
-// DISCORD SECTION
-import { discord_client } from "./start/discord";
-bot.discord_client = discord_client;
-
-// SLACK SECTION
-import { slack_client } from "./start/slack";
-bot.slack_client = slack_client;
-
-// EXPRESS SECTION
-import { express_client } from "start/express";
-bot.express_client = express_client;
-
-// START BOT
-bot.run();
+// STARTUP CODE
+export { discord_client as default_discord_client } from "start/discord";
+export { slack_client as default_slack_client } from "start/slack";
+export { express_client as default_express_client } from "start/express";

@@ -4,7 +4,7 @@ import {
   GenericContext,
   GenericEvent,
   GenericTrigger,
-  UniCord,
+  InterCord,
 } from "./generic_handler";
 
 export enum DiscordEventType {
@@ -15,18 +15,18 @@ export enum DiscordEventType {
 export class DiscordEventTrigger extends GenericTrigger {
   name: Events;
   type: DiscordEventType;
-  register(unicord: UniCord, event: GenericEvent): void {
+  register(intercord: InterCord, event: GenericEvent): void {
     if (this.type == DiscordEventType.Once) {
-      unicord.discord_client.once(this.name, (...args: any[]) =>
-        this.execute(unicord, event, ...args),
+      intercord.discord_client.once(this.name, (...args: any[]) =>
+        this.execute(intercord, event, ...args)
       );
     } else {
-      unicord.discord_client.on(this.name, (...args: any[]) =>
-        this.execute(unicord, event, ...args),
+      intercord.discord_client.on(this.name, (...args: any[]) =>
+        this.execute(intercord, event, ...args)
       );
     }
   }
-  to_ctx: (unicord: UniCord, ...args: any[]) => Promise<GenericContext>;
+  to_ctx: (intercord: InterCord, ...args: any[]) => Promise<GenericContext>;
   from_ctx: (ctx: GenericContext) => Promise<void>;
   get_name = () => {
     return this.name;
@@ -36,9 +36,9 @@ export class DiscordEventTrigger extends GenericTrigger {
     event: Events,
     type: DiscordEventType,
     to_ctx:
-      | ((unicord: UniCord, ...args: any[]) => Promise<GenericContext>)
+      | ((intercord: InterCord, ...args: any[]) => Promise<GenericContext>)
       | undefined = undefined,
-    from_ctx: ((ctx: GenericContext) => Promise<void>) | undefined = undefined,
+    from_ctx: ((ctx: GenericContext) => Promise<void>) | undefined = undefined
   ) {
     super();
 
@@ -53,10 +53,10 @@ export class DiscordEventTrigger extends GenericTrigger {
   }
 }
 
-const default_to_ctx = async (unicord: UniCord) => {
+const default_to_ctx = async (intercord: InterCord) => {
   const ctx = new GenericContext();
 
-  ctx.unicord = unicord;
+  ctx.intercord = intercord;
 
   return ctx;
 };

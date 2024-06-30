@@ -14,28 +14,28 @@ export class GenericContext {
 
 export abstract class GenericTrigger {
   abstract to_ctx: (
-    unicord: UniCord,
+    intercord: InterCord,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...args: any[]
   ) => Promise<GenericContext>;
   abstract from_ctx: (ctx: GenericContext) => Promise<void>;
   abstract get_name: () => string | undefined;
   abstract register(
-    unicord: UniCord,
+    intercord: InterCord,
     event: GenericEvent | GenericCommand
   ): void;
   execute: (
-    unicord: UniCord,
+    intercord: InterCord,
     event: GenericEvent,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...args: any[]
   ) => Promise<void> = async (
-    unicord: UniCord,
+    intercord: InterCord,
     event: GenericEvent,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...args: any[]
   ) => {
-    const ctx = await this.to_ctx(unicord, ...args);
+    const ctx = await this.to_ctx(intercord, ...args);
 
     // clonte event.steps as cloned_pipeline.
     const cloned_pipeline = event.steps.clone();
@@ -91,10 +91,10 @@ export class GenericCommand extends GenericEvent {
   }
 }
 
-export class UniCord {
+export class InterCord {
   public events: Collection<string, GenericEvent> = new Collection();
   public commands: Collection<string, GenericCommand> = new Collection();
-  private init_procedures: Array<(uniCord: UniCord) => void> = [];
+  private init_procedures: Array<(intercord: InterCord) => void> = [];
 
   // For slack and discord.js clients
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -108,7 +108,7 @@ export class UniCord {
     this.commands.set(command.get_name() || "", command);
   }
 
-  public init(procedure: (uniCord: UniCord) => void): void {
+  public init(procedure: (intercord: InterCord) => void): void {
     this.init_procedures.push(procedure);
   }
 
@@ -154,7 +154,7 @@ export class GenericHandler {
   options: GenericHandlerOptions;
 
   constructor(
-    unicord: UniCord,
+    intercord: InterCord,
     options: GenericHandlerOptions,
     callback: () => void
   ) {
@@ -164,11 +164,11 @@ export class GenericHandler {
       logger.info(`Loading all from ${this.options.autoload_dir}`);
       this.load_dir = this.options.autoload_dir;
 
-      this.autoload(unicord).then(callback);
+      this.autoload(intercord).then(callback);
     }
   }
 
-  async autoload(unicord: UniCord) {
+  async autoload(intercord: InterCord) {
     if (!fs.existsSync(this.load_dir)) {
       logger.error(`${this.load_dir} does not exist.`);
       return;
@@ -184,14 +184,14 @@ export class GenericHandler {
       const { event, command } = await import(file_path);
 
       if (event) {
-        unicord.addEvent(event);
+        intercord.addEvent(event);
       } else if (command) {
-        unicord.addCommand(command);
+        intercord.addCommand(command);
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Object.values((event || command).triggers).forEach((trigger: any) => {
-        trigger.register(unicord, event || command);
+        trigger.register(intercord, event || command);
       });
     }
   }

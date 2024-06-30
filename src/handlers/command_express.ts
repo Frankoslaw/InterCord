@@ -3,7 +3,7 @@ import {
   GenericCommand,
   GenericContext,
   GenericTrigger,
-  UniCord,
+  InterCord,
 } from "./generic_handler";
 
 export enum ExpressMethodType {
@@ -14,19 +14,19 @@ export enum ExpressMethodType {
 export class ExpressCommandTrigger extends GenericTrigger {
   method: ExpressMethodType;
   route: string = "/commands/test";
-  register(unicord: UniCord, event: GenericCommand): void {
+  register(intercord: InterCord, event: GenericCommand): void {
     if (this.method == ExpressMethodType.POST) {
-      unicord.express_client.post(this.route, (req: Request, res: Response) =>
-        this.execute(unicord, event, req, res)
+      intercord.express_client.post(this.route, (req: Request, res: Response) =>
+        this.execute(intercord, event, req, res)
       );
     } else {
-      unicord.express_client.get(this.route, (req: Request, res: Response) =>
-        this.execute(unicord, event, req, res)
+      intercord.express_client.get(this.route, (req: Request, res: Response) =>
+        this.execute(intercord, event, req, res)
       );
     }
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  to_ctx: (unicord: UniCord, ...args: any[]) => Promise<GenericContext>;
+  to_ctx: (intercord: InterCord, ...args: any[]) => Promise<GenericContext>;
   from_ctx: (ctx: GenericContext) => Promise<void>;
   get_name = () => {
     return undefined;
@@ -36,7 +36,7 @@ export class ExpressCommandTrigger extends GenericTrigger {
     method: ExpressMethodType,
     route: string,
     to_ctx: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    | ((unicord: UniCord, ...args: any[]) => Promise<GenericContext>)
+    | ((intercord: InterCord, ...args: any[]) => Promise<GenericContext>)
       | undefined = undefined,
     from_ctx: ((ctx: GenericContext) => Promise<void>) | undefined = undefined
   ) {
@@ -50,13 +50,13 @@ export class ExpressCommandTrigger extends GenericTrigger {
 }
 
 const default_to_ctx = async (
-  unicord: UniCord,
+  intercord: InterCord,
   req: Request,
   res: Response
 ) => {
   const ctx = new GenericContext();
 
-  ctx.unicord = unicord;
+  ctx.intercord = intercord;
   ctx.req = req;
   ctx.res = res;
 

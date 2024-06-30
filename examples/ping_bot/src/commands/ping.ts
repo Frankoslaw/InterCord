@@ -1,12 +1,13 @@
 import { SlashCommandBuilder } from "discord.js";
-import { Pipeline } from "../utils/pipeline";
-import { GenericCommand, GenericContext } from "handlers/generic_handler";
-import { DiscordCommandTrigger } from "handlers/command_discord";
 import {
+  Pipeline,
+  GenericCommand,
+  GenericContext,
+  DiscordCommandTrigger,
   ExpressCommandTrigger,
   ExpressMethodType,
-} from "handlers/command_express";
-import { SlackCommandTrigger } from "handlers/command_slack";
+  SlackCommandTrigger,
+} from "@frankoslaw/intercord";
 
 export const command = new GenericCommand(
   "ping",
@@ -25,7 +26,6 @@ export const command = new GenericCommand(
   },
   Pipeline<GenericContext>((ctx, next) => {
     ctx.results.push("Pong!");
-    ctx.results.push("Pong 2!");
 
     next();
   })
